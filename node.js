@@ -29,13 +29,19 @@ app.use(compose([
   mv.errorHandler(),
   mv.jSendWrapper(),
   mv.jsonReqBodyParser(),
-  db.setReqIndex(client, 'abareness.no')
+  db.setReqEntity(client, 'abareness.no')
 ]));
 
+var authToken = []
+
 // Routes
-app.use(route.post('/register', compose([db.register(client), db.getLoginToken(client)])));
-app.use(route.post('/token', db.getLoginToken(client)));
-app.use(route.post('/login', db.login(client)));
+app.use(route.post('/register', compose([db.register(client), db.setAuthToken(client), mv.mailAuthToken()])));
+
+app.use(route.post('/auth', compose([db.setAuthToken(client), mv.mailAuthToken()])));
+
+app.use(route.post('/login', db.setLoginToken(client)));
+
+app.use(route.post('/revoke', db.revokeLoginToken(client)));
 
 app.verifyAccess = function(token) {
   db.verifyToken()
