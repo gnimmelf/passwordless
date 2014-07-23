@@ -27,13 +27,15 @@ app.use(compose([
   mv.setHeaders(),
   mv.logger(':method :url'),
   mv.errorHandler(),
-  mv.jSendWrapper()
+  mv.jSendWrapper(),
+  mv.jsonReqBodyParser(),
+  db.setReqIndex(client, 'abareness.no')
 ]));
 
 // Routes
-app.use(route.post('/register', db.register(client, 'abareness')));
-app.use(route.post('/token', db.getLoginToken(client, 'abareness')));
-app.use(route.post('/login', db.login(client, 'abareness')));
+app.use(route.post('/register', compose([db.register(client), db.getLoginToken(client)])));
+app.use(route.post('/token', db.getLoginToken(client)));
+app.use(route.post('/login', db.login(client)));
 
 app.verifyAccess = function(token) {
   db.verifyToken()
