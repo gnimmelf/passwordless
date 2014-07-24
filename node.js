@@ -41,6 +41,8 @@ app.use(route.post('/login', db.getLoginToken(client)));
 app.use(route.post('/revoke', db.revokeLoginToken(client)));
 
 app.use(route.get('/entity', db.setEntity(client)));
+app.use(route.get('/pages', db.setPages(client)));
+app.use(route.get('/products', db.setProducts(client)));
 
 // Run
 if (!module.parent) {
