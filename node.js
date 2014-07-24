@@ -36,16 +36,11 @@ var auth_stack = [db.setAuthToken(client), mv.mailAuthToken()]
 
 // Routes
 app.use(route.post('/register', compose([db.register(client)].concat(auth_stack))));
-
 app.use(route.post('/auth', compose(auth_stack)));
-
-app.use(route.post('/login', db.setLoginToken(client)));
-
+app.use(route.post('/login', db.getLoginToken(client)));
 app.use(route.post('/revoke', db.revokeLoginToken(client)));
 
-app.verifyAccess = function(token) {
-  db.verifyToken()
-}
+app.use(route.get('/entity', db.setEntity(client)));
 
 // Run
 if (!module.parent) {
