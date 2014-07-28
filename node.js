@@ -22,7 +22,7 @@ var client = new elasticsearch.Client({
   //log: 'trace'
 });
 
-// Default middleware
+// Default middleware stack
 app.use(compose([
   mv.setHeaders(),
   mv.logger(':method :url'),
@@ -39,6 +39,7 @@ app.use(route.post('/register', compose([db.register(client)].concat(auth_stack)
 app.use(route.post('/auth', compose(auth_stack)));
 app.use(route.post('/login', db.getLoginToken(client)));
 app.use(route.post('/revoke', db.revokeLoginToken(client)));
+app.use(route.post('/verify', mv.verifyLoginToken(client)));
 
 app.use(route.get('/entity', db.setEntity(client)));
 app.use(route.get('/pages', db.setPages(client)));

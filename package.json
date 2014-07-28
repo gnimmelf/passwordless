@@ -1,6 +1,6 @@
 {
   "name": "passworless-koa",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "",
   "main": "node.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "co-body": "0.0.2",
+    "date-utils": "^1.2.16",
     "debug": "^1.0.4",
     "elasticsearch": "^2.3.0",
     "jwt-simple": "^0.2.0",
