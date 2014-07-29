@@ -32,14 +32,14 @@ app.use(compose([
   db.setReqEntity(client, 'abareness.no')
 ]));
 
-var auth_stack = [db.setAuthToken(client), mv.mailAuthToken()]
+var auth_stack = [db.setAuthToken(client, {hours: 1}), mv.mailAuthToken()]
 
 // Routes
 app.use(route.post('/register', compose([db.register(client)].concat(auth_stack))));
 app.use(route.post('/auth', compose(auth_stack)));
-app.use(route.post('/login', db.getLoginToken(client)));
+app.use(route.post('/login', db.getLoginToken(client, {months: 3})));
 app.use(route.post('/revoke', db.revokeLoginToken(client)));
-app.use(route.post('/verify', mv.verifyLoginToken(client)));
+app.use(route.post('/validate', db.validateLoginToken(client)));
 
 app.use(route.get('/entity', db.setEntity(client)));
 app.use(route.get('/pages', db.setPages(client)));
