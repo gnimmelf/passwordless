@@ -29,21 +29,47 @@ app.use(compose([
   mv.errorHandler(),
   mv.jSendWrapper(),
   mv.jsonReqBodyParser(),
-  db.setReqEntity(client, 'abareness.no')
+  db.setCtxEntity(client, 'abareness.no')
 ]));
 
-var auth_stack = [db.setAuthToken(client, {hours: 1}), mv.mailAuthToken()]
+var handler_stacks = {
+  register: [
+    db.registerUser(client),
+    db.makeLoginToken(client, {hours: 1}),
+    mv.mailLoginToken(),
+  ],
+  authenticate: [
+    db.setCtxUserRec(client),
+    db.makeLoginToken(client, {hours: 1}),
+    mv.mailLoginToken()
+  ],
+  login : [
+    db.setCtxTokenData('login_token'),
+    db.setCtxUserRec(client),
+    db.makeAuthToken(client, {months: 3}),
+  ],
+  authorize: [
+    db.setCtxTokenData('auth_token'),
+    db.setCtxUserRec(client),
+    db.authorizeUser(client),
+  ],
+  revoke: [
+    db.setCtxTokenData('auth_token'),
+    db.setCtxUserRec(client),
+    db.revokeLoginToken(client),
+  ]
+}
 
 // Routes
-app.use(route.post('/register', compose([db.register(client)].concat(auth_stack))));
-app.use(route.post('/auth', compose(auth_stack)));
-app.use(route.post('/login', db.getLoginToken(client, {months: 3})));
-app.use(route.post('/revoke', db.revokeLoginToken(client)));
-app.use(route.post('/validate', db.validateLoginToken(client)));
+app.use(route.post('/register', compose(handler_stacks.register)));
+app.use(route.post('/authenticate', compose(handler_stacks.authenticate)));
+app.use(route.post('/login', compose(handler_stacks.login)));
+app.use(route.post('/revoke', compose(handler_stacks.revoke)));
+app.use(route.post('/authorize', compose(handler_stacks.authorize)));
 
-app.use(route.get('/entity', db.setEntity(client)));
-app.use(route.get('/pages', db.setPages(client)));
-app.use(route.get('/products', db.setProducts(client)));
+app.use(route.get('/entity', db.returnEntity(client)));
+app.use(route.get('/pages', db.returnPages(client)));
+app.use(route.get('/products', db.returnProducts(client)));
 
 // Run
 if (!module.parent) {
