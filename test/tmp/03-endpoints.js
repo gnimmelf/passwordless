@@ -2,8 +2,6 @@
 $> DEBUG=mongrove* NODE_ENV=test npm test
 */
 
-return
-
 var should = require("should")
 var mocha = require('mocha')
 var request = require('supertest')
@@ -20,10 +18,11 @@ if ( process.env.NODE_ENV !== 'test' ) {
     process.exit(1)
 }
 
-describe('Testing CRUD:', function() {
+var server
+var client
 
-  var server
-  var client
+
+describe('Passwordless endpoints:', function() {
 
   before(function(done){
 
@@ -40,10 +39,37 @@ describe('Testing CRUD:', function() {
 
   })
 
-  it('deleted user index', function(done) {
-
+  it('deleted `entity` index', function(done) {
     co(function*() {
-      res = yield client.x.curlDeletePath('/entity/user')
+
+      res = yield client.indices.delete({
+        index: 'entity',
+        ignore: [404]
+      })
+
+      done()
+    })
+  })
+
+  it('deleted `unique_key` index', function(done) {
+    co(function*() {
+
+      res = yield client.indices.delete({
+        index: 'unique_key',
+        ignore: [404]
+      })
+
+      done()
+    })
+  })
+
+  it('created `entity/merchant` type', function(done) {
+    co(function*() {
+
+      yield putMapping('entity', 'merchant', {
+        hostname: {type : "string", index : "not_analyzed"},
+        image_base_url: {type : "string", index : "not_analyzed"}
+      })
 
       done()
     })

@@ -19,7 +19,7 @@ if ( !process.env.NODE_ENV || (process.env.NODE_ENV && process.env.NODE_ENV.subs
 var client = esGenClientX({
   host: 'localhost:9200',
   apiVersion: '1.2',
-  //log: 'trace'
+  log: 'trace'
 })
 
 // Default middleware stack
