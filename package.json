@@ -1,6 +1,6 @@
 {
   "name": "passworless-koa",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "",
   "main": "node.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "co": "^3.1.0",
     "mocha": "^1.21.3",
     "should": "^4.0.4",
+    "superagent": "^0.18.2",
     "supertest": "^0.13.0"
   }
 }

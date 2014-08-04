@@ -36,8 +36,21 @@ describe('esGenClientX: indexes and types:', function() {
 
   });
 
+  it("index `unique_key` exists", function(done) {
 
-  it("deleted `entity` index", function(done) {
+    var res
+
+    co(function*() {
+
+      res = yield client.x.curlExistsPath('/unique_key')
+      res.should.be.true
+
+      done()
+    })()
+
+  })
+
+  it("deleted index `entity`", function(done) {
 
     var res
 
@@ -54,7 +67,7 @@ describe('esGenClientX: indexes and types:', function() {
   })
 
 
-  it("created `entity` index", function(done) {
+  it("created index `entity`", function(done) {
 
     var res
 
@@ -69,7 +82,7 @@ describe('esGenClientX: indexes and types:', function() {
 
   })
 
-  it("mapped tyep `entity/user`", function(done) {
+  it("mapped type `entity/user`", function(done) {
 
     var res
 
