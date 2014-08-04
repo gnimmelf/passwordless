@@ -8,7 +8,6 @@ var request = require('supertest');
 var koa = require('koa');
 var co = require('co');
 var exec = require('child_process').exec;
-var assert = require('assert')
 
 var esGenClientX = require('../lib/es-gen-client-x.js');
 
@@ -20,9 +19,9 @@ if ( process.env.NODE_ENV !== 'test' ) {
     process.exit(1);
 }
 
-describe('esGenClientX: indexes and types:', function() {
+describe('esGenClientX', function() {
 
-  var client;
+  var client
 
   before(function(done){
 
@@ -36,7 +35,7 @@ describe('esGenClientX: indexes and types:', function() {
 
   });
 
-  it("index `unique_key` exists", function(done) {
+  it("checked that index `unique_key` exists", function(done) {
 
     var res
 
@@ -145,6 +144,9 @@ describe('esGenClientX: indexes and types:', function() {
           "image_base_url": "https://s3-eu-west-1.amazonaws.com/fireshop/abareness"
         }
       })
+
+      // http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-indices-refresh
+      res = yield client.indices.refresh()
 
       done()
     })()

@@ -29,7 +29,7 @@ app.use(compose([
   mv.errorHandler(),
   mv.jSendWrapper(),
   mv.jsonReqBodyParser(),
-  db.setCtxMerchant(client, 'abareness.no')
+  db.setCtxMerchantData(client, 'abareness.no')
 ]))
 
 var handler_stacks = {
@@ -67,7 +67,7 @@ app.use(route.post('/login', compose(handler_stacks.login)))
 app.use(route.post('/revoke', compose(handler_stacks.revoke)))
 app.use(route.post('/authorize', compose(handler_stacks.authorize)))
 
-app.use(route.get('/merchant', db.returnMerchant(client)))
+app.use(route.get('/merchant', mv.returnMerchantData()))
 app.use(route.get('/pages', db.returnPages(client)))
 app.use(route.get('/products', db.returnProducts(client)))
 
