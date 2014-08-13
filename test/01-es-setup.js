@@ -14,6 +14,7 @@ var esGenClientX = require('../lib/es-gen-client-x.js');
 
 console.log("-----------------------------")
 console.log('NODE_ENV: '+process.env.NODE_ENV);
+console.log('Current directory: ' + process.cwd());
 
 if ( process.env.NODE_ENV !== 'test' ) {
     console.log("Woops, you want NODE_ENV=test before you try this again!");
@@ -24,6 +25,17 @@ function readFile(file) {
   return function(fn){
     fs.readFile(file, 'utf8', fn);
   }
+}
+
+function make_bulk_request(obj, index, type) {
+
+  var bulk_request = []
+  Object.keys(obj).map(function(id) {
+    bulk_request.push({index: {_index: index, _type: type, _id: id}});
+    bulk_request.push(obj[id]);
+  })
+
+  return bulk_request
 }
 
 describe('esGenClientX', function() {
@@ -49,7 +61,9 @@ describe('esGenClientX', function() {
     co(function*() {
 
       res = yield client.x.curlExistsPath('/unique_key')
-      res.should.be.true
+
+      res.data.should.be.true
+      res.status.should.equal(200)
 
       done()
     })()
@@ -67,6 +81,9 @@ describe('esGenClientX', function() {
         ignore: [404]
       })
 
+      res.data['acknowledged'].should.be.true
+      res.status.should.equal(200)
+
       done()
     })()
 
@@ -82,6 +99,9 @@ describe('esGenClientX', function() {
       res = yield client.indices.create({
         index: 'entity'
       })
+
+      res.data['acknowledged'].should.be.true
+      res.status.should.equal(200)
 
       done()
     })()
@@ -105,6 +125,9 @@ describe('esGenClientX', function() {
           }
         }
       })
+
+      res.data['acknowledged'].should.be.true
+      res.status.should.equal(200)
 
       done()
     })()
@@ -131,6 +154,9 @@ describe('esGenClientX', function() {
         }
       })
 
+      res.data['acknowledged'].should.be.true
+      res.status.should.equal(200)
+
       done()
     })()
 
@@ -152,6 +178,9 @@ describe('esGenClientX', function() {
         }
       })
 
+      res.data['created'].should.be.true
+      res.status.should.equal(201)
+
       // http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-indices-refresh
       res = yield client.indices.refresh()
 
@@ -160,18 +189,16 @@ describe('esGenClientX', function() {
 
   })
 
-  it("created `abareness/pages` ", function(done) {
+  it("created `abareness/page` entries", function(done) {
 
     var res
 
     co(function*() {
 
-      console.log('Current directory: ' + process.cwd());
-
       var data = yield readFile('./data/pages.json.txt');
       data = JSON.parse(data)
 
-      var bulk_request = client.x.make_bulk_request(data, 'abareness', 'page')
+      var bulk_request = make_bulk_request(data, 'abareness', 'page')
       var res = yield client.bulk({
         body: bulk_request
       })
@@ -180,6 +207,26 @@ describe('esGenClientX', function() {
       res = yield client.indices.refresh()
 
       done()
+    })()
+
+  })
+
+  it("verified `abareness/page` entries", function(done) {
+
+    var res
+
+    co(function*() {
+
+      res = yield client.count({
+        index: 'abareness',
+        type: 'page'
+      })
+
+      res.data['count'].should.not.equal(0)
+      res.status.should.equal(200)
+
+      done()
+
     })()
 
   })
