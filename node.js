@@ -1,4 +1,4 @@
-Error.stackTraceLimit = 10
+Error.stackTraceLimit = 50
 
 // https://github.com/koajs/koa/blob/master/docs/guide.md
 var koa = require('koa')
@@ -19,7 +19,7 @@ if ( !process.env.NODE_ENV || (process.env.NODE_ENV && process.env.NODE_ENV.subs
 var client = esGenClientX({
   host: 'localhost:9200',
   apiVersion: '1.2',
-  log: 'trace'
+  //log: 'trace'
 })
 
 // Default middleware stack

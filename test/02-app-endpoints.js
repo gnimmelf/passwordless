@@ -44,7 +44,6 @@ describe('Passwordless endpoint', function() {
       .end(done)
   })
 
-/*
   it('can register a user by email', function(done) {
     request(server)
       .post('/register')
@@ -55,10 +54,9 @@ describe('Passwordless endpoint', function() {
       .expect(function(res) {
         res.body.should.have.property("status", "success")
       })
-      .end(function() {
-        setTimeout(done, 1000)
-      })
+      .end(done)
   })
+
 
   it('could not register a user by an existing email', function(done) {
     request(server)
@@ -73,5 +71,5 @@ describe('Passwordless endpoint', function() {
       })
       .end(done)
   })
-*/
+
 })

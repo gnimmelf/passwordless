@@ -54,6 +54,21 @@ describe('esGenClientX', function() {
 
   });
 
+  it("created index `unique_key`", function(done) {
+
+    var res
+
+    co(function*() {
+
+      res = yield client.indices.create({
+        index: 'unique_key'
+      })
+
+      done()
+    })()
+
+  })
+
   it("checked that index `unique_key` exists", function(done) {
 
     var res
@@ -70,6 +85,19 @@ describe('esGenClientX', function() {
 
   })
 
+  it("deleted all `unique_key/email` entries", function(done) {
+
+    var res
+
+    co(function*() {
+
+      res = yield client.x.curlDeletePath('/unique_key/email')
+
+      done()
+    })()
+
+  })
+
   it("deleted index `entity`", function(done) {
 
     var res
@@ -77,8 +105,7 @@ describe('esGenClientX', function() {
     co(function*() {
 
       res = yield client.indices.delete({
-        index: 'entity',
-        ignore: [404]
+        index: 'entity'
       })
 
       res.data['acknowledged'].should.be.true
@@ -275,15 +302,10 @@ describe('esGenClientX', function() {
       var data = yield readFile('./data/products.json.txt');
       data = JSON.parse(data)
 
-
-
       var bulk_request = make_bulk_request(data, 'abareness', 'product')
       var res = yield client.bulk({
         body: bulk_request
       })
-
-      //console.log(data['jw0114-s'])
-      console.log(res.data.items[0])
 
       res.data['errors'].should.be.false
       res.status.should.equal(200)
