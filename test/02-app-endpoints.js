@@ -19,6 +19,7 @@ if ( process.env.NODE_ENV !== 'test' ) {
 describe('Passwordless endpoint', function() {
 
   var server
+  var token
 
   before(function(done){
 
@@ -68,6 +69,34 @@ describe('Passwordless endpoint', function() {
       .expect(function(res) {
         res.body.should.have.property("status", "fail")
         res.body.should.have.property("data", "Email already exists")
+      })
+      .end(done)
+  })
+
+  it('could authenticate a user by email', function(done) {
+    request(server)
+      .post('/authenticate')
+      .send({email: 'gnimmelf@gmail.com'})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+        res.body.should.have.property("status", "success")
+        res.body.data.should.startWith("Login Token mailed to")
+      })
+      .end(done)
+  })
+
+  it('could not authenticate a user by non-existing email', function(done) {
+    request(server)
+      .post('/authenticate')
+      .send({email: 'kjhkdsgsk@asdsf.asasfaf'})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+        res.body.should.have.property("status", "fail")
+        res.body.should.have.property("data", "User email not found")
       })
       .end(done)
   })
