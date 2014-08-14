@@ -73,20 +73,6 @@ describe('Passwordless endpoint', function() {
       .end(done)
   })
 
-  it('could authenticate a user by email', function(done) {
-    request(server)
-      .post('/authenticate')
-      .send({email: 'gnimmelf@gmail.com'})
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(200)
-      .expect(function(res) {
-        res.body.should.have.property("status", "success")
-        res.body.data.should.startWith("Login Token mailed to")
-      })
-      .end(done)
-  })
-
   it('could not authenticate a user by non-existing email', function(done) {
     request(server)
       .post('/authenticate')
@@ -97,6 +83,59 @@ describe('Passwordless endpoint', function() {
       .expect(function(res) {
         res.body.should.have.property("status", "fail")
         res.body.should.have.property("data", "User email not found")
+      })
+      .end(done)
+  })
+
+  it('could authenticate a user by email', function(done) {
+    request(server)
+      .post('/authenticate')
+      .send({email: 'gnimmelf@gmail.com'})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+        res.body.should.have.property("status", "success")
+        res.body.data.should.startWith("Login Token mailed to")
+
+        // Store login_token
+        token = res.body.meta.login_token
+
+      })
+      .end(done)
+  })
+
+  it('could exchange a `login_token` for an `auth_token`', function(done) {
+    request(server)
+      .post('/login')
+      .send({token: token})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+
+        res.body.should.have.property("status", "success")
+        res.body.data.should.startWith("Auth Token mailed to")
+
+        // Store auth_token
+        token = res.body.meta.auth_token
+
+      })
+      .end(done)
+  })
+
+  it('could authorize a request with a POSTed `auth_token`', function(done) {
+    request(server)
+      .post('/authorize')
+      .send({token: token})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+
+        res.body.should.have.property("status", "success")
+        res.body.should.have.property("data", "Token is valid")
+
       })
       .end(done)
   })

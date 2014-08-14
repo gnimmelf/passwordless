@@ -47,6 +47,7 @@ var handler_stacks = {
     db.setCtxTokenData('login_token'),
     db.setCtxUserRec(client),
     db.makeAuthToken(client, {months: 3}),
+    mv.mailAuthToken()
   ],
   authorize: [
     db.setCtxTokenData('auth_token'),
@@ -64,8 +65,9 @@ var handler_stacks = {
 app.use(route.post('/register', compose(handler_stacks.register)))
 app.use(route.post('/authenticate', compose(handler_stacks.authenticate)))
 app.use(route.post('/login', compose(handler_stacks.login)))
-app.use(route.post('/revoke', compose(handler_stacks.revoke)))
 app.use(route.post('/authorize', compose(handler_stacks.authorize)))
+app.use(route.post('/revoke', compose(handler_stacks.revoke)))
+
 
 app.use(route.get('/merchant', mv.returnMerchantData()))
 app.use(route.get('/pages', db.returnPages(client)))
