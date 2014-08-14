@@ -203,6 +203,9 @@ describe('esGenClientX', function() {
         body: bulk_request
       })
 
+      res.data['errors'].should.be.false
+      res.status.should.equal(200)
+
       // http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-indices-refresh
       res = yield client.indices.refresh()
 
@@ -222,7 +225,89 @@ describe('esGenClientX', function() {
         type: 'page'
       })
 
-      res.data['count'].should.not.equal(0)
+      res.data['count'].should.be.greaterThan(0)
+      res.status.should.equal(200)
+
+      done()
+
+    })()
+
+  })
+
+
+  it("mapped type `abareness/products`", function(done) {
+
+    var res
+
+    co(function*() {
+
+      res = yield client.indices.putMapping({
+        index: 'abareness',
+        type: 'products',
+        body: {
+          'products': {
+            properties : {
+              sku: {type: "string", index : "not_analyzed"},
+              colors: {type: "object", index : "not_analyzed"},
+              prices: {type: "object", index : "not_analyzed"},
+              images: {type: "object", index : "not_analyzed"},
+              sizes: {type: "object", index : "not_analyzed"},
+              tags: {type: "object", index : "not_analyzed"},
+            }
+          }
+        }
+      })
+
+      res.data['acknowledged'].should.be.true
+      res.status.should.equal(200)
+
+      done()
+    })()
+
+  })
+
+  it("created `abareness/products` entries", function(done) {
+
+    var res
+
+    co(function*() {
+
+      var data = yield readFile('./data/products.json.txt');
+      data = JSON.parse(data)
+
+
+
+      var bulk_request = make_bulk_request(data, 'abareness', 'product')
+      var res = yield client.bulk({
+        body: bulk_request
+      })
+
+      //console.log(data['jw0114-s'])
+      console.log(res.data.items[0])
+
+      res.data['errors'].should.be.false
+      res.status.should.equal(200)
+
+      // http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-indices-refresh
+      res = yield client.indices.refresh()
+
+      done()
+    })()
+
+  })
+
+  it("verified `abareness/product` entries", function(done) {
+
+    var res
+
+    co(function*() {
+
+      res = yield client.count({
+        index: 'abareness',
+        type: 'product'
+      })
+
+      res.data['count'].should.be.greaterThan(0)
       res.status.should.equal(200)
 
       done()
