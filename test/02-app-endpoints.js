@@ -37,7 +37,6 @@ describe('Passwordless endpoint', function() {
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
-        //console.log(res.body)
         res.body.should.have.property('status', 'success')
         res.body.should.have.property('data')
         res.body.data.should.have.properties('id', 'hostname', 'image_base_url')
@@ -57,7 +56,6 @@ describe('Passwordless endpoint', function() {
       })
       .end(done)
   })
-
 
   it('could not register a user by an existing email', function(done) {
     request(server)
@@ -95,17 +93,20 @@ describe('Passwordless endpoint', function() {
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
-        res.body.should.have.property("status", "success")
-        res.body.data.should.startWith("Login Token mailed to")
 
-        // Store login_token
-        token = res.body.meta.login_token
+        res.body.should.have.property("status", "success")
+        res.body.data.email.should.equal("gnimmelf@gmail.com")
+
+        // Store authenticate_token (from `body.meta.authenticate_token` -only for in `TEST`-env!)
+        res.body.meta.should.have.property("authenticate_token")
+        token = res.body.meta.authenticate_token
 
       })
       .end(done)
   })
 
-  it('could exchange a `login_token` for an `auth_token`', function(done) {
+
+  it('could exchange a `authenticate_token` for an `authorize_token`', function(done) {
     request(server)
       .post('/login')
       .send({token: token})
@@ -115,10 +116,11 @@ describe('Passwordless endpoint', function() {
       .expect(function(res) {
 
         res.body.should.have.property("status", "success")
-        res.body.data.should.startWith("Auth Token mailed to")
+        res.body.data.email.should.equal("gnimmelf@gmail.com")
 
-        // Store auth_token
-        token = res.body.meta.auth_token
+        // Store authorize_token
+        res.body.data.should.have.property("token")
+        token = res.body.data.token
 
       })
       .end(done)
@@ -134,7 +136,7 @@ describe('Passwordless endpoint', function() {
       .expect(function(res) {
 
         res.body.should.have.property("status", "success")
-        res.body.should.have.property("data", "Token is valid")
+        res.body.data.email.should.equal("gnimmelf@gmail.com")
 
       })
       .end(done)

@@ -35,29 +35,34 @@ app.use(compose([
 var handler_stacks = {
   register: [
     db.registerUser(client),
-    db.makeLoginToken(client, {hours: 1}),
-    mv.mailLoginToken(),
+    db.makeAuthenticateToken(client, {hours: 1}),
+    mv.mailAuthenticateToken(),
+    mv.returnRegisterData(),
   ],
   authenticate: [
     db.setCtxUserRec(client),
-    db.makeLoginToken(client, {hours: 1}),
-    mv.mailLoginToken()
+    db.makeAuthenticateToken(client, {hours: 1}),
+    mv.mailAuthenticateToken(),
+    mv.returnAuthenticateData(),
   ],
-  login : [
-    db.setCtxTokenData('login_token'),
+  login: [
+    db.setCtxTokenData('authenticate_token'),
     db.setCtxUserRec(client),
-    db.makeAuthToken(client, {months: 3}),
-    mv.mailAuthToken()
+    db.makeAuthorizeToken(client, {months: 3}),
+    mv.mailAuthorizeToken(),
+    mv.returnLoginData(),
   ],
   authorize: [
-    db.setCtxTokenData('auth_token'),
+    db.setCtxTokenData('authorize_token'),
     db.setCtxUserRec(client),
     db.authorizeUser(client),
+    mv.returnAuthorizeData(),
   ],
   revoke: [
-    db.setCtxTokenData('auth_token'),
+    db.setCtxTokenData('authorize_token'),
     db.setCtxUserRec(client),
-    db.revokeLoginToken(client),
+    db.revokeAuthorizeToken(client),
+    mv.returnRevokeAuthorizeToken(),
   ]
 }
 

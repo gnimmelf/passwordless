@@ -147,7 +147,8 @@ describe('esGenClientX', function() {
         body: {
           'user': {
             properties : {
-              email: {type : "string", index : "not_analyzed"}
+              email: {type : "string", index : "not_analyzed"},
+              tokens: {type: "object", index: "not_analyzed"},
             }
           }
         }
