@@ -71,9 +71,9 @@ describe('Passwordless endpoint', function() {
       .end(done)
   })
 
-  it('could not authenticate a user by non-existing email', function(done) {
+  it('could not log in a user by non-existing email', function(done) {
     request(server)
-      .post('/authenticate')
+      .post('/login')
       .send({email: 'kjhkdsgsk@asdsf.asasfaf'})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -85,9 +85,9 @@ describe('Passwordless endpoint', function() {
       .end(done)
   })
 
-  it('could authenticate a user by email', function(done) {
+  it('could log in a user by email', function(done) {
     request(server)
-      .post('/authenticate')
+      .post('/login')
       .send({email: 'gnimmelf@gmail.com'})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -108,20 +108,21 @@ describe('Passwordless endpoint', function() {
 
   it('could exchange a `authenticate_token` for an `authorize_token`', function(done) {
     request(server)
-      .post('/login')
+      .post('/authenticate')
       .send({token: token})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
 
+        console.log(res.body)
+
         res.body.should.have.property("status", "success")
         res.body.data.email.should.equal("gnimmelf@gmail.com")
 
         // Store authorize_token
-        res.body.data.should.have.property("token")
-        token = res.body.data.token
-
+        res.body.data.should.have.property('tokens').with.lengthOf(1)
+        token = res.body.data.tokens[0]
       })
       .end(done)
   })
@@ -134,6 +135,8 @@ describe('Passwordless endpoint', function() {
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
+
+        console.log(res.body)
 
         res.body.should.have.property("status", "success")
         res.body.data.email.should.equal("gnimmelf@gmail.com")

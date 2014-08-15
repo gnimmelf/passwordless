@@ -37,44 +37,44 @@ var handler_stacks = {
     db.registerUser(client),
     db.makeAuthenticateToken(client, {hours: 1}),
     mv.mailAuthenticateToken(),
-    mv.returnRegisterData(),
+    mv.registerReturnHandler(),
   ],
-  authenticate: [
+  login: [
     db.setCtxUserRec(client),
     db.makeAuthenticateToken(client, {hours: 1}),
     mv.mailAuthenticateToken(),
-    mv.returnAuthenticateData(),
+    mv.loginReturnHandler(),
   ],
-  login: [
+  authenticate: [
     db.setCtxTokenData('authenticate_token'),
     db.setCtxUserRec(client),
-    db.makeAuthorizeToken(client, {months: 3}),
+    db.ensureUserAuthorizeToken(client, {months: 3}),
     mv.mailAuthorizeToken(),
-    mv.returnLoginData(),
+    mv.authenticateReturnHandler(),
   ],
   authorize: [
     db.setCtxTokenData('authorize_token'),
     db.setCtxUserRec(client),
-    db.authorizeUser(client),
-    mv.returnAuthorizeData(),
+    db.validateAuthorizeToken(client),
+    mv.authorizeReturnHandler(),
   ],
   revoke: [
     db.setCtxTokenData('authorize_token'),
     db.setCtxUserRec(client),
     db.revokeAuthorizeToken(client),
-    mv.returnRevokeAuthorizeToken(),
+    mv.revokeReturnHandler(),
   ]
 }
 
 // Routes
 app.use(route.post('/register', compose(handler_stacks.register)))
-app.use(route.post('/authenticate', compose(handler_stacks.authenticate)))
 app.use(route.post('/login', compose(handler_stacks.login)))
+app.use(route.post('/authenticate', compose(handler_stacks.authenticate)))
 app.use(route.post('/authorize', compose(handler_stacks.authorize)))
 app.use(route.post('/revoke', compose(handler_stacks.revoke)))
 
 
-app.use(route.get('/merchant', mv.returnMerchantData()))
+app.use(route.get('/merchant', mv.merchantReturnHandler()))
 app.use(route.get('/pages', db.returnPages(client)))
 app.use(route.get('/products', db.returnProducts(client)))
 
