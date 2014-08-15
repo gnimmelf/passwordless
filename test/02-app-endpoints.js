@@ -19,7 +19,8 @@ if ( process.env.NODE_ENV !== 'test' ) {
 describe('Passwordless endpoint', function() {
 
   var server
-  var token
+  var authenticate_token
+  var authorize_token
 
   before(function(done){
 
@@ -99,7 +100,7 @@ describe('Passwordless endpoint', function() {
 
         // Store authenticate_token (from `body.meta.authenticate_token` -only for in `TEST`-env!)
         res.body.meta.should.have.property("authenticate_token")
-        token = res.body.meta.authenticate_token
+        authenticate_token = res.body.meta.authenticate_token
 
       })
       .end(done)
@@ -109,20 +110,34 @@ describe('Passwordless endpoint', function() {
   it('could exchange a `authenticate_token` for an `authorize_token`', function(done) {
     request(server)
       .post('/authenticate')
-      .send({token: token})
+      .send({token: authenticate_token})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
-
-        console.log(res.body)
 
         res.body.should.have.property("status", "success")
         res.body.data.email.should.equal("gnimmelf@gmail.com")
 
         // Store authorize_token
         res.body.data.should.have.property('tokens').with.lengthOf(1)
-        token = res.body.data.tokens[0]
+        authorize_token = res.body.data.tokens[0]
+      })
+      .end(done)
+  })
+
+  it('failed reusing the same `authenticate_token`', function(done) {
+    request(server)
+      .post('/authenticate')
+      .send({token: authenticate_token})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .expect(function(res) {
+
+        res.body.should.have.property("status", "fail")
+        res.body.should.have.property('data', 'Authenticate-token is used. Please request a new token')
+
       })
       .end(done)
   })
@@ -130,13 +145,11 @@ describe('Passwordless endpoint', function() {
   it('could authorize a request with a POSTed `auth_token`', function(done) {
     request(server)
       .post('/authorize')
-      .send({token: token})
+      .send({token: authorize_token})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(function(res) {
-
-        console.log(res.body)
 
         res.body.should.have.property("status", "success")
         res.body.data.email.should.equal("gnimmelf@gmail.com")
