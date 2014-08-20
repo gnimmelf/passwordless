@@ -10,6 +10,8 @@ var esGenClientX = require('./lib/es-gen-client-x')
 var mv = require('./lib/middleware')
 var db = require('./lib/es-mw')
 
+var sendTokenMail = require('./lib/emailer').sendTokenEmail
+
 var app = koa()
 if ( !process.env.NODE_ENV || (process.env.NODE_ENV && process.env.NODE_ENV.substr(0, 4) != 'prod') ) {
   app.use( require('koa-favi')() )
@@ -36,20 +38,20 @@ var handler_stacks = {
   register: [
     db.registerUser(client),
     db.makeAuthenticateToken(client, {hours: 1}),
-    mv.mailAuthenticateToken(),
+    mv.mailAuthenticateToken(sendTokenMail),
     mv.registerReturnHandler(),
   ],
   login: [
     db.setCtxUserRec(client),
     db.makeAuthenticateToken(client, {hours: 1}),
-    mv.mailAuthenticateToken(),
+    mv.mailAuthenticateToken(sendTokenMail),
     mv.loginReturnHandler(),
   ],
   authenticate: [
     db.setCtxTokenData('authenticate_token'),
     db.setCtxUserRec(client),
     db.ensureUserAuthorizeToken(client, {months: 3}),
-    mv.mailAuthorizeToken(),
+    mv.mailAuthorizeTokens(sendTokenMail),
     mv.authenticateReturnHandler(),
   ],
   authorize: [
