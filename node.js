@@ -12,6 +12,9 @@ var db = require('./lib/es-mw')
 
 var sendTokenMail = require('./lib/emailer').sendTokenEmail
 
+var AUTHENTICATE_TOKEN_TYPE = require('./lib/constants').AUTHENTICATE_TOKEN_TYPE
+var AUTHORIZE_TOKEN_TYPE = require('./lib/constants').AUTHORIZE_TOKEN_TYPE
+
 var app = koa()
 if ( !process.env.NODE_ENV || (process.env.NODE_ENV && process.env.NODE_ENV.substr(0, 4) != 'prod') ) {
   app.use( require('koa-favi')() )
@@ -47,21 +50,26 @@ var handler_stacks = {
     mv.mailAuthenticateToken(sendTokenMail),
     mv.loginReturnHandler(),
   ],
-  authenticate: [
-    db.setCtxTokenData('authenticate_token'),
+  validate_token: [
+    db.setCtxTokenData(),
+    db.setCtxUserRec(client),
+    mv.validateReturnHandler(),
+  ],
+  authenticate_token: [
+    db.setCtxTokenData(AUTHENTICATE_TOKEN_TYPE),
     db.setCtxUserRec(client),
     db.ensureUserAuthorizeToken(client, {months: 3}),
     mv.mailAuthorizeTokens(sendTokenMail),
     mv.authenticateReturnHandler(),
   ],
-  authorize: [
-    db.setCtxTokenData('authorize_token'),
+  authorize_token: [
+    db.setCtxTokenData(AUTHORIZE_TOKEN_TYPE),
     db.setCtxUserRec(client),
     db.validateAuthorizeToken(client),
     mv.authorizeReturnHandler(),
   ],
-  revoke: [
-    db.setCtxTokenData('authorize_token'),
+  revoke_token: [
+    db.setCtxTokenData(AUTHORIZE_TOKEN_TYPE),
     db.setCtxUserRec(client),
     db.revokeAuthorizeToken(client),
     mv.revokeReturnHandler(),
@@ -71,10 +79,10 @@ var handler_stacks = {
 // Routes
 app.use(route.post('/register', compose(handler_stacks.register)))
 app.use(route.post('/login', compose(handler_stacks.login)))
-app.use(route.post('/authenticate', compose(handler_stacks.authenticate)))
-app.use(route.post('/authorize', compose(handler_stacks.authorize)))
-app.use(route.post('/revoke', compose(handler_stacks.revoke)))
-
+app.use(route.post('/token/validate', compose(handler_stacks.validate_token)))
+app.use(route.post('/token/authenticate', compose(handler_stacks.authenticate_token)))
+app.use(route.post('/token/authorize', compose(handler_stacks.authorize_token)))
+app.use(route.post('/token/revoke', compose(handler_stacks.revoke_token)))
 
 app.use(route.get('/merchant', mv.merchantReturnHandler()))
 app.use(route.get('/pages', db.returnPages(client)))
