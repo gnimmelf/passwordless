@@ -47,7 +47,7 @@ var handler_stacks = {
   login: [
     db.setCtxUserRec(client),
     db.makeAuthenticateToken(client, {hours: 1}),
-    mv.mailAuthenticateToken(sendTokenMail),
+    //mv.mailAuthenticateToken(sendTokenMail),
     mv.loginReturnHandler(),
   ],
   validate_token: [
@@ -59,7 +59,6 @@ var handler_stacks = {
     db.setCtxTokenData(AUTHENTICATE_TOKEN_TYPE),
     db.setCtxUserRec(client),
     db.ensureUserAuthorizeToken(client, {months: 3}),
-    mv.mailAuthorizeTokens(sendTokenMail),
     mv.authenticateReturnHandler(),
   ],
   authorize_token: [
