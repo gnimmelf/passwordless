@@ -80,8 +80,13 @@ app.use(route.post('/register', compose(handler_stacks.register)))
 app.use(route.post('/login', compose(handler_stacks.login)))
 app.use(route.post('/token/validate', compose(handler_stacks.validate_token)))
 app.use(route.post('/token/authenticate', compose(handler_stacks.authenticate_token)))
-app.use(route.post('/token/authorize', compose(handler_stacks.authorize_token)))
 app.use(route.post('/token/revoke', compose(handler_stacks.revoke_token)))
+
+// TODO!
+//app.use(route.post('/token/create', compose(handler_stacks.revoke_token)))
+
+// TODO! How to hook this into client code
+app.use(route.post('/token/authorize', compose(handler_stacks.authorize_token)))
 
 app.use(route.get('/merchant', mv.merchantReturnHandler()))
 app.use(route.get('/pages', db.returnPages(client)))
