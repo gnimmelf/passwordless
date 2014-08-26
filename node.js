@@ -61,11 +61,11 @@ var handler_stacks = {
     db.ensureUserAuthorizeToken(client, {months: 3}),
     mv.authenticateReturnHandler(),
   ],
-  authorize_token: [
+  user_authorize_tokens: [
     db.setCtxTokenData(AUTHORIZE_TOKEN_TYPE),
     db.setCtxUserRec(client),
     db.validateAuthorizeToken(client),
-    mv.authorizeReturnHandler(),
+    mv.userAuthorizeTokensReturnHandler(),
   ],
   revoke_token: [
     db.setCtxTokenData(AUTHORIZE_TOKEN_TYPE),
@@ -81,12 +81,14 @@ app.use(route.post('/login', compose(handler_stacks.login)))
 app.use(route.post('/token/validate', compose(handler_stacks.validate_token)))
 app.use(route.post('/token/authenticate', compose(handler_stacks.authenticate_token)))
 app.use(route.post('/token/revoke', compose(handler_stacks.revoke_token)))
+app.use(route.post('/user/tokens', compose(handler_stacks.user_authorize_tokens)))
+
 
 // TODO!
 //app.use(route.post('/token/create', compose(handler_stacks.revoke_token)))
 
 // TODO! How to hook this into client code
-app.use(route.post('/token/authorize', compose(handler_stacks.authorize_token)))
+//app.use(route.post('/token/authorize', compose(handler_stacks.authorize_token)))
 
 app.use(route.get('/merchant', mv.merchantReturnHandler()))
 app.use(route.get('/pages', db.returnPages(client)))
